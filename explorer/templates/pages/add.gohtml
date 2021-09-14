@@ -1,0 +1,18 @@
+{{define "add"}}
+<!DOCTYPE html>
+<html lang="en">
+  {{template "head" "Add"}}
+  {{/* value를 직접 보낼 수도 있다 */}}
+  <body>
+    {{template "header" "Add a Block"}}
+    <main>
+        <form method="POST">
+        {{/* action = "add" 를 사용하지 않는 이유는 add에서 렌더링 되기 때문에 action의 default값이 add이기 때문이다 */}}
+            <input type="text" placeholder="Data for your block" required name="blockData" />
+            <button>Add Block</button>
+        </form>
+    </main>
+  {{template "footer"}}
+  </body>
+</html>
+{{end}}

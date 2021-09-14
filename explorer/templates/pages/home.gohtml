@@ -1,0 +1,16 @@
+{{define "home"}}
+<!DOCTYPE html>
+<html lang="en">
+  {{template "head" .PageTitle}}
+  <body>
+    {{template "header" .PageTitle}}
+    <main>
+    {{range .Blocks}}
+      {{template "block" .}} 
+      {{/* range안에서 Blocks struct이 아닌 Blocks 배열 안 각각의 Block을 보내준다 */}}
+    {{end}}
+    </main>
+  {{template "footer"}}
+  </body>
+</html>
+{{end}}
