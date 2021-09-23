@@ -36,11 +36,12 @@ func add(rw http.ResponseWriter, r *http.Request) {
 		http.Redirect(rw, r, "/", http.StatusPermanentRedirect)
 	}
 }
-func Start() {
+func Start(port int) {
+	handler := http.NewServeMux()
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))     //handle하기 전 load하는 코드 / (standard package이용)
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml")) // Must func은 error발생시 error를 반환 / (templates variable 사용)
-	http.HandleFunc("/", home)
-	http.HandleFunc("/add", add)
-	fmt.Printf("Listening on http://localhost%s \n", port)
-	log.Fatal(http.ListenAndServe(port, nil)) //첫 번째 인자는 주소값이고 두번째 인자는 handler이다
+	handler.HandleFunc("/", home)
+	handler.HandleFunc("/add", add)
+	fmt.Printf("Listening on http://localhost:%d \n", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler)) //첫 번째 인자는 주소값이고 두번째 인자는 handler이다
 }

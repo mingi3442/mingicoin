@@ -1,7 +1,7 @@
 package main
 
-import "github.com/mingi3442/mingicoin/explorer"
+import "github.com/mingi3442/mingicoin/blockchain"
 
 func main() {
-	explorer.Start()
+	blockchain.Blockchain()
 }
