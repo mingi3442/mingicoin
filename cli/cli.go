@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/mingi3442/mingicoin/explorer"
 	"github.com/mingi3442/mingicoin/rest"
@@ -14,7 +15,7 @@ func usage() {
 	fmt.Printf("Please use the following flags:\n\n")
 	fmt.Printf("-port:		Set the PORT of the server\n")
 	fmt.Printf("-mode:		Choose between 'html' and 'rest'\n\n")
-	os.Exit(0)
+	runtime.Goexit() //모든 함수를 제거하지만 그 전에 defer를 먼저 이행한다
 }
 
 func Start() {

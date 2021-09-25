@@ -22,7 +22,7 @@ type homeData struct {
 }
 
 func home(rw http.ResponseWriter, r *http.Request) { //rw(ResponeWriter)에는 유저에게 보내고 싶은 데이터를 적는다
-	data := homeData{"Home!", blockchain.GetBlockchain().AllBlock()}
+	data := homeData{"Home!", nil}
 	templates.ExecuteTemplate(rw, "home", data)
 }
 func add(rw http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func add(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		r.ParseForm()
 		data := r.Form.Get("blockData")
-		blockchain.GetBlockchain().AddBlock(data)
+		blockchain.Blockchain().AddBlock(data)
 		http.Redirect(rw, r, "/", http.StatusPermanentRedirect)
 	}
 }
