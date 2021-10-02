@@ -1,19 +1,23 @@
 package blockchain
 
 import (
-	"crypto/sha256"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/mingi3442/mingicoin/db"
 	"github.com/mingi3442/mingicoin/utils"
 )
 
 type Block struct {
-	Data     string `json:"data"`
-	Hash     string `json:"hash"`
-	PrevHash string `json:"prevHash,omitempty"`
-	Height   int    `json:"height"`
+	Hash         string `json:"hash"`
+	PrevHash     string `json:"prevHash,omitempty"`
+	Height       int    `json:"height"`
+	Difficulty   int    `json:"difficulty"`
+	Nonce        int    `json:"nonce"`
+	Timestamp    int    `json:"timestamp"`
+	Transactions []*Tx  `json:"transactions"`
 }
 
 func (b *Block) persist() {
@@ -36,15 +40,31 @@ func FindBlock(hash string) (*Block, error) {
 	return block, nil
 }
 
-func createBlock(data string, prevHash string, height int) *Block {
-	block := &Block{
-		Data:     data,
-		Hash:     "",
-		PrevHash: prevHash,
-		Height:   height,
+func (b *Block) mine() {
+	target := strings.Repeat("0", b.Difficulty)
+	for {
+		b.Timestamp = int(time.Now().Unix()) //nonce가 증가하고 for loop가 반복될 때 마다 타임스탬프 생성
+		hash := utils.Hash(b)
+		fmt.Printf("\nTarget : %s \nHash : %s \nNonce : %d\n\n", target, hash, b.Nonce)
+		if strings.HasPrefix(hash, target) {
+			b.Hash = hash
+			break
+		} else {
+			b.Nonce++
+		}
 	}
-	payload := block.Data + block.PrevHash + fmt.Sprint(block.Height)
-	block.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(payload))) //새로운 block을 만들 때 hashing
-	block.persist()                                                // hashing 후 save
+}
+
+func createBlock(prevHash string, height, diff int) *Block {
+	block := &Block{
+		Hash:       "",
+		PrevHash:   prevHash,
+		Height:     height,
+		Difficulty: diff,
+		Nonce:      0,
+	}
+	block.mine()
+	block.Transactions = Mempool.TxToConfirm()
+	block.persist() // hashing 후 save
 	return block
 }

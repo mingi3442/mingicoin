@@ -43,7 +43,7 @@ func Close() {
 	DB().Close()
 }
 
-func SaveBlockchain(data []byte) {
+func SaveCheckpoint(data []byte) {
 	err := DB().Update(func(t *bolt.Tx) error {
 		bucket := t.Bucket([]byte(dataBucket))
 		err := bucket.Put([]byte(checkpoint), data)
@@ -57,7 +57,7 @@ func Checkpoint() []byte {
 	DB().View(func(t *bolt.Tx) error { //View()는 read-only function이다
 		bucket := t.Bucket([]byte(dataBucket))
 		data = bucket.Get([]byte(checkpoint))
-		return nil
+		return nil //저장된 값이 없을 경우 nil반환
 	})
 	return data
 }

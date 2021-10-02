@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/mingi3442/mingicoin/blockchain"
 	"github.com/mingi3442/mingicoin/cli"
 	"github.com/mingi3442/mingicoin/db"
 )
@@ -9,5 +8,4 @@ import (
 func main() {
 	defer db.Close()
 	cli.Start()
-	blockchain.Blockchain()
 }

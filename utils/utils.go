@@ -2,7 +2,9 @@ package utils
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/gob"
+	"fmt"
 	"log"
 )
 
@@ -22,5 +24,11 @@ func ToBytes(i interface{}) []byte { //interface는 base type이라 뭐든지 in
 func FromBytes(i interface{}, data []byte) {
 	encoder := gob.NewDecoder(bytes.NewReader(data))
 	HandleErr(encoder.Decode(i))
+
+}
+func Hash(i interface{}) string {
+	s := fmt.Sprintf("%v", i)        //interface를 string으로 변환
+	hash := sha256.Sum256([]byte(s)) //hashing
+	return fmt.Sprintf("%x", hash)   //16진수로 return
 
 }
