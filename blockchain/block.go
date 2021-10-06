@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -45,7 +44,7 @@ func (b *Block) mine() {
 	for {
 		b.Timestamp = int(time.Now().Unix()) //nonce가 증가하고 for loop가 반복될 때 마다 타임스탬프 생성
 		hash := utils.Hash(b)
-		fmt.Printf("\nTarget : %s \nHash : %s \nNonce : %d\n\n", target, hash, b.Nonce)
+		// fmt.Printf("\nTarget : %s \nHash : %s \nNonce : %d\n\n", target, hash, b.Nonce)
 		if strings.HasPrefix(hash, target) {
 			b.Hash = hash
 			break
