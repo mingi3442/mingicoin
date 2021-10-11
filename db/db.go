@@ -1,12 +1,15 @@
 package db
 
 import (
-	"github.com/boltdb/bolt"
+	"fmt"
+	"os"
+
 	"github.com/mingi3442/mingicoin/utils"
+	bolt "go.etcd.io/bbolt"
 )
 
 const (
-	dbName       = "blockchain.db"
+	dbName       = "blockchain"
 	dataBucket   = "data"
 	blocksBucket = "blocks"
 	checkpoint   = "checkpoint"
@@ -14,9 +17,14 @@ const (
 
 var db *bolt.DB
 
+func getDbName() string {
+	port := os.Args[2][6:]
+	return fmt.Sprintf("%s_%s.db", dbName, port)
+}
+
 func DB() *bolt.DB {
 	if db == nil { //dbPointer가 존재하지 않는다면
-		dbPointer, err := bolt.Open(dbName, 0600, nil) //DB를 열고 dbPointer를 지정
+		dbPointer, err := bolt.Open(getDbName(), 0600, nil) //DB를 열고 dbPointer를 지정
 		db = dbPointer
 		utils.HandleErr(err)
 		err = db.Update(func(t *bolt.Tx) error { // bucket이 존재하지 않으면 bucket생성
@@ -70,4 +78,13 @@ func Block(hash string) []byte {
 		return nil
 	})
 	return data
+}
+
+func EmptyBlocks() {
+	DB().Update(func(t *bolt.Tx) error {
+		utils.HandleErr(t.DeleteBucket([]byte(blocksBucket)))
+		_, err := t.CreateBucket([]byte(blocksBucket))
+		utils.HandleErr(err)
+		return nil
+	})
 }

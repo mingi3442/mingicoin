@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/mingi3442/mingicoin/utils"
@@ -13,10 +14,21 @@ const (
 )
 
 type mempool struct {
-	Txs []*Tx
+	Txs map[string]*Tx
+	m   sync.Mutex
 }
 
-var Mempool *mempool = &mempool{} //empty mempool 생성
+var m *mempool //empty mempool 생성
+var memOnce sync.Once
+
+func Mempool() *mempool {
+	memOnce.Do(func() {
+		m = &mempool{
+			Txs: make(map[string]*Tx),
+		}
+	})
+	return m
+}
 
 type Tx struct {
 	ID        string   `json:"id"`
@@ -71,7 +83,7 @@ func validate(tx *Tx) bool { //검증할 transaction을 가져온다
 func isOnMempool(UTxOut *UTxOut) bool {
 	exists := false
 Outer: //label
-	for _, tx := range Mempool.Txs {
+	for _, tx := range Mempool().Txs {
 		for _, input := range tx.TxIns {
 			exists = input.TxID == UTxOut.TxID && input.Index == UTxOut.Index
 			break Outer //for문이 중첩되었을 때 label을 이용하면 조건이 만족했을때 label로 빠져나간다.
@@ -137,19 +149,28 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	return tx, nil
 }
 
-func (m *mempool) AddTx(to string, amount int) error {
+func (m *mempool) AddTx(to string, amount int) (*Tx, error) {
 	tx, err := makeTx(wallet.Wallet().Address, to, amount)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	m.Txs = append(m.Txs, tx)
-	return nil
+	m.Txs[tx.ID] = tx
+	return tx, nil
 }
 
 func (m *mempool) TxToConfirm() []*Tx {
 	coinbase := makeCoinbaseTx(wallet.Wallet().Address) //coinbase의 transaction
-	txs := m.Txs                                        //mempool에 있는 모든 transaction
+	var txs []*Tx                                       //mempool에 있는 모든 transaction
 	txs = append(txs, coinbase)                         //coinbaseTx + mempoolTx
-	m.Txs = nil                                         //mempool을 비움
+	for _, tx := range m.Txs {
+		txs = append(txs, tx)
+	}
+	m.Txs = make(map[string]*Tx) //mempool을 비움
 	return txs
+}
+
+func (m *mempool) AddPeerTx(tx *Tx) {
+	m.m.Lock()
+	defer m.m.Unlock()
+	m.Txs[tx.ID] = tx
 }

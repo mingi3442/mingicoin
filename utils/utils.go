@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 )
 
 func HandleErr(err error) {
@@ -31,4 +33,18 @@ func Hash(i interface{}) string {
 	hash := sha256.Sum256([]byte(s)) //hashing
 	return fmt.Sprintf("%x", hash)   //16진수로 return
 
+}
+
+func Splitter(s string, sep string, i int) string {
+	r := strings.Split(s, sep)
+	if len(r)-1 < i {
+		return ""
+	}
+	return r[i]
+}
+
+func ToJSON(i interface{}) []byte {
+	r, err := json.Marshal(i)
+	HandleErr(err)
+	return r
 }
